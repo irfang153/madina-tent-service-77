@@ -1,0 +1,39 @@
+name: Build Madina Tent Service APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Create fresh Flutter project
+        run: flutter create --platforms=android madina_app
+
+      - name: Copy app files
+        run: |
+          cp main.dart madina_app/lib/main.dart
+          cp pubspec.yaml madina_app/pubspec.yaml
+
+      - name: Get dependencies
+        working-directory: madina_app
+        run: flutter pub get
+
+      - name: Build APK
+        working-directory: madina_app
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: madina-tent-service-apk
+          path: madina_app/build/app/outputs/flutter-apk/app-release.apk
